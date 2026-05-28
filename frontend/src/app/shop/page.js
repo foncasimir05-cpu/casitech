@@ -1,11 +1,7 @@
 'use client';
 import React, { useState, useEffect, useRef } from "react";
 import useAuthStore from '../../store/useAuthStore';
-import { authAPI, productsAPI, paymentsAPI, ordersAPI } from '../../lib/api';
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
+import { authAPI, productsAPI, ordersAPI } from '../../lib/api';
 
 const C = {
   bg:"#0a0a0f", bg2:"#0e0e16", card:"#13131e", card2:"#1a1a28",
@@ -80,20 +76,20 @@ const normalizeProduct = p => ({
 });
 
 const INIT_PRODUCTS = [
-  {id:1,name:"ProMax Laptop 16 Ultra",cat:2,price:1299,disc:15,rating:4.8,reviews:342,stock:12,icon:"💻",seller:"TechHub",hot:true,isNew:false,desc:"Intel Core i9, 32GB DDR5, 1TB NVMe SSD, RTX 4070. 4K OLED. Thunderbolt 4."},
-  {id:2,name:"Noise-Cancel Headphones X9",cat:3,price:249,disc:30,rating:4.6,reviews:891,stock:45,icon:"🎧",seller:"SoundWave",hot:true,isNew:false,desc:"40h battery, 40mm drivers, active noise cancellation, foldable."},
-  {id:3,name:"SmartWatch Series 5 Pro",cat:7,price:399,disc:0,rating:4.7,reviews:213,stock:8,icon:"⌚",seller:"GadgetZone",hot:false,isNew:true,desc:"ECG tracking, GPS, 2-day battery. AMOLED. Water resistant 50m."},
-  {id:4,name:"4K Drone Camera Pro",cat:8,price:599,disc:20,rating:4.5,reviews:127,stock:3,icon:"🚁",seller:"AirTech",hot:true,isNew:false,desc:"30-min flight, 3-axis gimbal, 4K/60fps HDR, obstacle sensing, 10km range."},
-  {id:5,name:"Galaxy Ultra S25",cat:1,price:1099,disc:10,rating:4.9,reviews:1204,stock:20,icon:"📱",seller:"MobileZone",hot:true,isNew:true,desc:"6.8\" Dynamic AMOLED, 200MP camera, Snapdragon 8 Gen 4, 5000mAh, 45W fast charge."},
-  {id:6,name:"Portable Bluetooth Speaker",cat:3,price:69,disc:22,rating:4.5,reviews:654,stock:80,icon:"🔊",seller:"SoundWave",hot:false,isNew:true,desc:"360° sound, 20h battery, IPX7 waterproof. Party mode links 100 speakers."},
-  {id:7,name:"Gaming Console X Pro",cat:4,price:499,disc:0,rating:4.8,reviews:3241,stock:7,icon:"🎮",seller:"GameVault",hot:true,isNew:false,desc:"8K gaming, 2TB SSD, ray tracing, 120fps, backward compatible."},
-  {id:8,name:"Mirrorless Camera 45MP",cat:5,price:1899,disc:8,rating:4.9,reviews:318,stock:5,icon:"📸",seller:"ProLens",hot:false,isNew:true,desc:"45MP full-frame, 4K/120fps, 10-stop IBIS, dual card slots, weather sealed."},
-  {id:9,name:"Wi-Fi 7 Mesh Router Pro",cat:9,price:349,disc:12,rating:4.6,reviews:209,stock:30,icon:"📡",seller:"NetCore",hot:false,isNew:true,desc:"Wi-Fi 7 BE19000, tri-band, 10Gbps WAN, covers 6000 sq ft, 200+ devices."},
-  {id:10,name:"2TB NVMe SSD Gen5",cat:10,price:189,disc:18,rating:4.7,reviews:876,stock:60,icon:"🔋",seller:"StorageKing",hot:false,isNew:false,desc:"14,000MB/s read, PCIe 5.0, M.2 2280, heatsink included. 5-year warranty."},
-  {id:11,name:"True Wireless Earbuds Pro",cat:3,price:129,disc:15,rating:4.7,reviews:2341,stock:150,icon:"🎵",seller:"SoundWave",hot:false,isNew:false,desc:"ANC + transparency, 36h total, spatial audio, IPX4, wireless charging case."},
-  {id:12,name:"VR Headset Infinity 3",cat:7,price:599,disc:25,rating:4.6,reviews:432,stock:15,icon:"🥽",seller:"VirtualEdge",hot:true,isNew:false,desc:"4K per eye, 120Hz, eye tracking, hand tracking, 3h battery. Standalone + PC VR."},
-  {id:13,name:"Mechanical Gaming Keyboard",cat:4,price:149,disc:0,rating:4.8,reviews:1876,stock:45,icon:"⌨️",seller:"GameVault",hot:false,isNew:true,desc:"Hall effect switches, per-key RGB, 8000Hz polling, gasket mount, aluminium."},
-  {id:14,name:"Smart Home Security Hub",cat:6,price:89,disc:0,rating:4.4,reviews:567,stock:50,icon:"🏠",seller:"SmartLiving",hot:false,isNew:true,desc:"Controls 200+ devices, Matter & Thread ready, local processing, works offline."},
+  {id:1,name:"ProMax Laptop 16 Ultra",cat:2,price:850000,disc:15,rating:4.8,reviews:342,stock:12,icon:"💻",seller:"TechHub",hot:true,isNew:false,desc:"Intel Core i9, 32GB DDR5, 1TB NVMe SSD, RTX 4070. 4K OLED. Thunderbolt 4."},
+  {id:2,name:"Noise-Cancel Headphones X9",cat:3,price:165000,disc:30,rating:4.6,reviews:891,stock:45,icon:"🎧",seller:"SoundWave",hot:true,isNew:false,desc:"40h battery, 40mm drivers, active noise cancellation, foldable."},
+  {id:3,name:"SmartWatch Series 5 Pro",cat:7,price:260000,disc:0,rating:4.7,reviews:213,stock:8,icon:"⌚",seller:"GadgetZone",hot:false,isNew:true,desc:"ECG tracking, GPS, 2-day battery. AMOLED. Water resistant 50m."},
+  {id:4,name:"4K Drone Camera Pro",cat:8,price:390000,disc:20,rating:4.5,reviews:127,stock:3,icon:"🚁",seller:"AirTech",hot:true,isNew:false,desc:"30-min flight, 3-axis gimbal, 4K/60fps HDR, obstacle sensing, 10km range."},
+  {id:5,name:"Galaxy Ultra S25",cat:1,price:720000,disc:10,rating:4.9,reviews:1204,stock:20,icon:"📱",seller:"MobileZone",hot:true,isNew:true,desc:"6.8\" Dynamic AMOLED, 200MP camera, Snapdragon 8 Gen 4, 5000mAh, 45W fast charge."},
+  {id:6,name:"Portable Bluetooth Speaker",cat:3,price:45000,disc:22,rating:4.5,reviews:654,stock:80,icon:"🔊",seller:"SoundWave",hot:false,isNew:true,desc:"360° sound, 20h battery, IPX7 waterproof. Party mode links 100 speakers."},
+  {id:7,name:"Gaming Console X Pro",cat:4,price:325000,disc:0,rating:4.8,reviews:3241,stock:7,icon:"🎮",seller:"GameVault",hot:true,isNew:false,desc:"8K gaming, 2TB SSD, ray tracing, 120fps, backward compatible."},
+  {id:8,name:"Mirrorless Camera 45MP",cat:5,price:1240000,disc:8,rating:4.9,reviews:318,stock:5,icon:"📸",seller:"ProLens",hot:false,isNew:true,desc:"45MP full-frame, 4K/120fps, 10-stop IBIS, dual card slots, weather sealed."},
+  {id:9,name:"Wi-Fi 7 Mesh Router Pro",cat:9,price:230000,disc:12,rating:4.6,reviews:209,stock:30,icon:"📡",seller:"NetCore",hot:false,isNew:true,desc:"Wi-Fi 7 BE19000, tri-band, 10Gbps WAN, covers 6000 sq ft, 200+ devices."},
+  {id:10,name:"2TB NVMe SSD Gen5",cat:10,price:125000,disc:18,rating:4.7,reviews:876,stock:60,icon:"🔋",seller:"StorageKing",hot:false,isNew:false,desc:"14,000MB/s read, PCIe 5.0, M.2 2280, heatsink included. 5-year warranty."},
+  {id:11,name:"True Wireless Earbuds Pro",cat:3,price:85000,disc:15,rating:4.7,reviews:2341,stock:150,icon:"🎵",seller:"SoundWave",hot:false,isNew:false,desc:"ANC + transparency, 36h total, spatial audio, IPX4, wireless charging case."},
+  {id:12,name:"VR Headset Infinity 3",cat:7,price:390000,disc:25,rating:4.6,reviews:432,stock:15,icon:"🥽",seller:"VirtualEdge",hot:true,isNew:false,desc:"4K per eye, 120Hz, eye tracking, hand tracking, 3h battery. Standalone + PC VR."},
+  {id:13,name:"Mechanical Gaming Keyboard",cat:4,price:98000,disc:0,rating:4.8,reviews:1876,stock:45,icon:"⌨️",seller:"GameVault",hot:false,isNew:true,desc:"Hall effect switches, per-key RGB, 8000Hz polling, gasket mount, aluminium."},
+  {id:14,name:"Smart Home Security Hub",cat:6,price:59000,disc:0,rating:4.4,reviews:567,stock:50,icon:"🏠",seller:"SmartLiving",hot:false,isNew:true,desc:"Controls 200+ devices, Matter & Thread ready, local processing, works offline."},
 ];
 
 const BANNERS = [
@@ -103,7 +99,8 @@ const BANNERS = [
 ];
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
-const fp = p => p.disc ? (p.price*(1-p.disc/100)).toFixed(2) : p.price.toFixed(2);
+const fp = p => p.disc ? Math.round(p.price*(1-p.disc/100)) : Math.round(p.price);
+const fmtP = n => Math.round(n).toLocaleString('fr-FR') + ' FCFA';
 const stars = r => "★".repeat(Math.floor(r))+"☆".repeat(5-Math.floor(r));
 
 // ─── Toast ─────────────────────────────────────────────────────────────────────
@@ -144,8 +141,8 @@ function PCard({p,onCart,onView,wish,onWish}){
           <span style={{fontSize:10,color:C.muted}}>({p.reviews})</span>
         </div>
         <div style={{display:"flex",alignItems:"baseline",gap:8,marginBottom:8}}>
-          <span className="orb" style={{fontWeight:700,fontSize:14,color:C.green}}>${price}</span>
-          {p.disc>0&&<span style={{fontSize:11,color:C.muted,textDecoration:"line-through"}}>${p.price}</span>}
+          <span className="orb" style={{fontWeight:700,fontSize:14,color:C.green}}>{fmtP(price)}</span>
+          {p.disc>0&&<span style={{fontSize:11,color:C.muted,textDecoration:"line-through"}}>{fmtP(p.price)}</span>}
         </div>
         {p.stock<=10&&<div style={{fontFamily:"Share Tech Mono",fontSize:9,color:"#ff6600",marginBottom:7}}>⚠ {p.stock} LEFT</div>}
         <button className="btn" style={{width:"100%",padding:"7px 0",fontSize:9}}
@@ -221,9 +218,9 @@ function ShopPageContent({products,onCart,onView,wish,onWish,initFilters}){
   const [search,setSearch]=useState("");
   const [cat,setCat]=useState(initFilters?.cat||0);
   const [sort,setSort]=useState("popular");
-  const [maxP,setMaxP]=useState(2000);
+  const [maxP,setMaxP]=useState(1500000);
   const filtered=products
-    .filter(p=>(!cat||p.cat===cat)&&p.name.toLowerCase().includes(search.toLowerCase())&&parseFloat(fp(p))<=maxP)
+    .filter(p=>(!cat||p.cat===cat)&&p.name.toLowerCase().includes(search.toLowerCase())&&fp(p)<=maxP)
     .sort((a,b)=>sort==="price-asc"?a.price-b.price:sort==="price-desc"?b.price-a.price:sort==="rating"?b.rating-a.rating:b.reviews-a.reviews);
   return(
     <div className="fade-in">
@@ -252,8 +249,8 @@ function ShopPageContent({products,onCart,onView,wish,onWish,initFilters}){
             </select>
           </div>
           <div style={{minWidth:110}}>
-            <label style={{fontFamily:"Share Tech Mono",fontSize:9,color:C.muted,display:"block",marginBottom:4,letterSpacing:1}}>MAX ${maxP}</label>
-            <input type="range" min={20} max={2000} value={maxP} onChange={e=>setMaxP(Number(e.target.value))} style={{width:"100%"}}/>
+            <label style={{fontFamily:"Share Tech Mono",fontSize:9,color:C.muted,display:"block",marginBottom:4,letterSpacing:1}}>MAX {maxP.toLocaleString('fr-FR')} FCFA</label>
+            <input type="range" min={10000} max={1500000} step={10000} value={maxP} onChange={e=>setMaxP(Number(e.target.value))} style={{width:"100%"}}/>
           </div>
         </div>
       </div>
@@ -298,8 +295,8 @@ function ProductModal({p,onClose,onCart,wish,onWish}){
           <span style={{fontSize:11,color:C.muted}}>{p.rating} ({p.reviews} reviews)</span>
         </div>
         <div style={{display:"flex",alignItems:"baseline",gap:12,marginBottom:16}}>
-          <span className="orb" style={{fontSize:24,fontWeight:800,color:C.green}}>${price}</span>
-          {p.disc>0&&<><span style={{fontSize:14,color:C.muted,textDecoration:"line-through"}}>${p.price}</span><span className="sale">-{p.disc}%</span></>}
+          <span className="orb" style={{fontSize:24,fontWeight:800,color:C.green}}>{fmtP(price)}</span>
+          {p.disc>0&&<><span style={{fontSize:14,color:C.muted,textDecoration:"line-through"}}>{fmtP(p.price)}</span><span className="sale">-{p.disc}%</span></>}
         </div>
         <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
           <span style={{fontFamily:"Share Tech Mono",fontSize:9,color:C.muted}}>QTY:</span>
@@ -351,7 +348,7 @@ function ProductModal({p,onClose,onCart,wish,onWish}){
 
 // ─── Cart Page ─────────────────────────────────────────────────────────────────
 function CartPage({cart,onRemove,onQty,onCheckout}){
-  const total=cart.reduce((s,i)=>s+parseFloat(fp(i.p))*i.qty,0);
+  const total=cart.reduce((s,i)=>s+fp(i.p)*i.qty,0);
   if(!cart.length) return(
     <div className="fade-in" style={{textAlign:"center",padding:"80px 0"}}>
       <div style={{fontSize:64,marginBottom:12}}>🛒</div>
@@ -382,23 +379,23 @@ function CartPage({cart,onRemove,onQty,onCheckout}){
                   <button onClick={()=>onRemove(item.p.id)} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontFamily:"Share Tech Mono",fontSize:9}}>✕ REMOVE</button>
                 </div>
               </div>
-              <span className="orb" style={{fontSize:14,fontWeight:700,color:C.green,flexShrink:0}}>${(fp(item.p)*item.qty).toFixed(2)}</span>
+              <span className="orb" style={{fontSize:14,fontWeight:700,color:C.green,flexShrink:0}}>{fmtP(fp(item.p)*item.qty)}</span>
             </div>
           ))}
         </div>
         <div style={{background:C.card,borderRadius:8,padding:16,border:`1px solid ${C.border}`,position:"sticky",top:72}}>
           <div className="orb" style={{fontSize:12,fontWeight:700,marginBottom:12,letterSpacing:1}}>ORDER SUMMARY</div>
-          {cart.map(i=><div key={i.p.id} style={{display:"flex",justifyContent:"space-between",fontSize:11,color:C.muted,marginBottom:5}}><span>{i.p.name} ×{i.qty}</span><span>${(fp(i.p)*i.qty).toFixed(2)}</span></div>)}
+          {cart.map(i=><div key={i.p.id} style={{display:"flex",justifyContent:"space-between",fontSize:11,color:C.muted,marginBottom:5}}><span>{i.p.name} ×{i.qty}</span><span>{fmtP(fp(i.p)*i.qty)}</span></div>)}
           <div className="hr"/>
           <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:C.muted,marginBottom:5}}><span>Shipping</span><span style={{color:C.green}}>FREE</span></div>
           <div className="hr"/>
           <div style={{display:"flex",justifyContent:"space-between",marginBottom:16}}>
             <span className="orb" style={{fontSize:11}}>TOTAL</span>
-            <span className="orb" style={{color:C.green,fontSize:16}}>${total.toFixed(2)}</span>
+            <span className="orb" style={{color:C.green,fontSize:16}}>{fmtP(total)}</span>
           </div>
           <button className="btn" style={{width:"100%",padding:12,fontSize:11,letterSpacing:2}} onClick={onCheckout}>CHECKOUT →</button>
           <div style={{marginTop:12,display:"flex",gap:6,justifyContent:"center"}}>
-            {["💳 STRIPE","🅿 PAYPAL","📱 MOBILE"].map(m=><span key={m} style={{fontSize:9,background:C.card2,padding:"3px 8px",borderRadius:3,color:C.muted,fontFamily:"Share Tech Mono"}}>{m}</span>)}
+            <span style={{fontSize:9,background:C.card2,padding:"3px 8px",borderRadius:3,color:C.muted,fontFamily:"Share Tech Mono"}}>📱 MTN MOBILE MONEY</span>
           </div>
         </div>
       </div>
@@ -409,76 +406,33 @@ function CartPage({cart,onRemove,onQty,onCheckout}){
 // ─── Checkout Modal ────────────────────────────────────────────────────────────
 function CheckoutModal({cart,onClose,onDone}){
   const [step,setStep]=useState(1);
-  const [f,setF]=useState({name:"",email:"",phone:"",address:"",city:"",notes:"",pay:"card"});
-  const [clientSecret,setClientSecret]=useState(null);
-  const [orderId,setOrderId]=useState(null);
+  const [f,setF]=useState({name:"",email:"",phone:"",address:"",city:"",notes:"",momoPhone:"",momoRef:""});
   const [loading,setLoading]=useState(false);
   const [err,setErr]=useState("");
-  const [cardErr,setCardErr]=useState("");
-  const [paying,setPaying]=useState(false);
-  const stripe=useStripe();
-  const elements=useElements();
-  const total=cart.reduce((s,i)=>s+parseFloat(fp(i.p))*i.qty,0);
+  const total=cart.reduce((s,i)=>s+fp(i.p)*i.qty,0);
   const sf=k=>e=>setF(v=>({...v,[k]:e.target.value}));
-  const ok=step===1?(f.name&&f.email&&f.phone):(step===2?(f.address&&f.city):true);
-  const steps=f.pay==="card"?["CONTACT","SHIPPING","PAYMENT","CARD"]:["CONTACT","SHIPPING","PAYMENT"];
+  const steps=["CONTACT","SHIPPING","PAYMENT"];
+  const ok=step===1?(f.name&&f.email&&f.phone):(step===2?(f.address&&f.city):(f.momoPhone&&f.momoRef));
 
   const advance=async()=>{
     setErr("");
-    if(step===1||step===2){setStep(s=>s+1);return;}
-    if(step===3){
-      if(f.pay==="card"){
-        setLoading(true);
-        try{
-          const items=cart.map(i=>({product_id:i.p.id,name:i.p.name,price:parseFloat(fp(i.p)),quantity:i.qty}));
-          const {data}=await paymentsAPI.createCheckout({
-            items,
-            shipping_address:{name:f.name,email:f.email,phone:f.phone,address:f.address,city:f.city},
-            notes:f.notes,
-          });
-          setClientSecret(data.clientSecret);
-          setOrderId(data.orderId);
-          setStep(4);
-        }catch(e){
-          setErr(e.response?.data?.error||"Failed to initialize payment. Ensure Stripe keys are configured.");
-        }finally{setLoading(false);}
-      }else{
-        setLoading(true);
-        try{
-          const items=cart.map(i=>({product_id:i.p.id,name:i.p.name,price:parseFloat(fp(i.p)),quantity:i.qty}));
-          const {data}=await ordersAPI.create({
-            items,
-            shipping_address:{name:f.name,email:f.email,phone:f.phone,address:f.address,city:f.city},
-            payment_method:f.pay,notes:f.notes,
-          });
-          onDone({...f,orderId:data.order.id});
-        }catch(e){
-          setErr(e.response?.data?.error||"Order failed. Please try again.");
-        }finally{setLoading(false);}
-      }
-    }
+    if(step<3){setStep(s=>s+1);return;}
+    setLoading(true);
+    try{
+      const items=cart.map(i=>({product_id:i.p.id,name:i.p.name,price:fp(i.p),quantity:i.qty}));
+      const {data}=await ordersAPI.create({
+        items,
+        shipping_address:{name:f.name,email:f.email,phone:f.phone,address:f.address,city:f.city},
+        payment_method:"momo",
+        momo_phone:f.momoPhone,
+        momo_reference:f.momoRef,
+        notes:f.notes,
+      });
+      onDone({...f,orderId:data.order.id});
+    }catch(e){
+      setErr(e.response?.data?.error||"Order failed. Please try again.");
+    }finally{setLoading(false);}
   };
-
-  const handlePay=async()=>{
-    if(!stripe||!elements||!clientSecret)return;
-    setPaying(true);setCardErr("");
-    const card=elements.getElement(CardElement);
-    const {error,paymentIntent}=await stripe.confirmCardPayment(clientSecret,{
-      payment_method:{card,billing_details:{name:f.name,email:f.email,phone:f.phone}},
-    });
-    if(error){
-      setCardErr(error.message);
-      setPaying(false);
-    }else if(paymentIntent.status==="succeeded"){
-      try{await paymentsAPI.confirm(orderId,paymentIntent.id);}catch{}
-      onDone({...f,orderId});
-    }
-  };
-
-  const cardStyle={style:{
-    base:{color:"#e8fff0",fontFamily:"'Share Tech Mono',monospace",fontSize:"14px","::placeholder":{color:"#7a8a8f"}},
-    invalid:{color:"#ff4444"},
-  }};
 
   return(
     <div className="overlay" onClick={onClose}>
@@ -512,73 +466,49 @@ function CheckoutModal({cart,onClose,onDone}){
           <textarea rows={2} placeholder="Order notes (optional)" value={f.notes} onChange={sf("notes")} style={{resize:"none"}}/>
         </div>}
 
-        {/* Step 3: Payment method */}
+        {/* Step 3: MTN Mobile Money */}
         {step===3&&<div className="fade-in">
-          <div style={{fontFamily:"Share Tech Mono",fontSize:9,color:C.green,letterSpacing:1,marginBottom:10}}>// SELECT PAYMENT METHOD</div>
-          {[["card","💳  CREDIT / DEBIT (STRIPE)"],["paypal","🅿  PAYPAL"],["mobile","📱  MOBILE MONEY"]].map(([val,label])=>(
-            <label key={val} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",background:f.pay===val?`${C.green}0d`:C.card2,borderRadius:5,marginBottom:7,cursor:"pointer",border:`1px solid ${f.pay===val?C.green:C.border}`}}>
-              <input type="radio" name="pay" value={val} checked={f.pay===val} onChange={sf("pay")}/>
-              <span style={{fontSize:11,fontFamily:"Share Tech Mono"}}>{label}</span>
-            </label>
-          ))}
-          <div className="hr"/>
-          <div style={{background:C.card2,borderRadius:6,padding:12}}>
-            {cart.map(i=><div key={i.p.id} style={{display:"flex",justifyContent:"space-between",fontSize:11,color:C.muted,marginBottom:4}}><span>{i.p.name} ×{i.qty}</span><span>${(fp(i.p)*i.qty).toFixed(2)}</span></div>)}
-            <div className="hr" style={{margin:"8px 0"}}/>
-            <div style={{display:"flex",justifyContent:"space-between"}}>
-              <span className="orb" style={{fontSize:10}}>TOTAL</span>
-              <span className="orb" style={{color:C.green,fontSize:14}}>${total.toFixed(2)}</span>
+          <div style={{fontFamily:"Share Tech Mono",fontSize:9,color:C.green,letterSpacing:1,marginBottom:12}}>// MTN MOBILE MONEY PAYMENT</div>
+          <div style={{background:"#ffcc0010",border:"1px solid #ffcc0044",borderRadius:8,padding:14,marginBottom:14}}>
+            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
+              <span style={{fontSize:28}}>📱</span>
+              <div>
+                <div style={{fontFamily:"Share Tech Mono",fontSize:11,color:"#ffcc00",fontWeight:700,letterSpacing:1}}>MTN MOBILE MONEY</div>
+                <div style={{fontSize:11,color:C.muted,marginTop:2}}>Send payment then enter your reference below</div>
+              </div>
+            </div>
+            <div style={{fontFamily:"Share Tech Mono",fontSize:10,color:C.muted,lineHeight:2}}>
+              1. Dial *165# on your MTN line<br/>
+              2. Select Mobile Money → Pay Bill<br/>
+              3. Enter amount: <span style={{color:"#ffcc00",fontWeight:700}}>{fmtP(total)}</span><br/>
+              4. Copy your transaction reference number
             </div>
           </div>
-        </div>}
-
-        {/* Step 4: Stripe card entry */}
-        {step===4&&<div className="fade-in">
-          <div style={{fontFamily:"Share Tech Mono",fontSize:9,color:C.green,letterSpacing:1,marginBottom:14}}>// ENTER CARD — SECURED BY STRIPE</div>
-          <div style={{background:C.card2,border:`1px solid ${cardErr?C.red:C.border}`,borderRadius:6,padding:"14px",marginBottom:10,transition:"border-color .2s"}}>
-            <CardElement options={cardStyle} onChange={e=>setCardErr(e.error?.message||"")}/>
+          <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:14}}>
+            <div>
+              <label style={{fontFamily:"Share Tech Mono",fontSize:9,color:C.muted,display:"block",marginBottom:4,letterSpacing:1}}>MTN MOMO PHONE NUMBER *</label>
+              <input placeholder="e.g. 077 000 0000" value={f.momoPhone} onChange={sf("momoPhone")}/>
+            </div>
+            <div>
+              <label style={{fontFamily:"Share Tech Mono",fontSize:9,color:C.muted,display:"block",marginBottom:4,letterSpacing:1}}>MTN MOMO REFERENCE NUMBER *</label>
+              <input placeholder="e.g. 1234567890" value={f.momoRef} onChange={sf("momoRef")}/>
+            </div>
           </div>
-          {cardErr&&<div style={{fontFamily:"Share Tech Mono",fontSize:10,color:C.red,marginBottom:8}}>⚠ {cardErr}</div>}
-          <div style={{background:C.card2,borderRadius:6,padding:"10px 12px",marginBottom:10,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div className="hr"/>
+          <div style={{background:C.card2,borderRadius:6,padding:"10px 12px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
             <span style={{fontFamily:"Share Tech Mono",fontSize:10,color:C.muted}}>TOTAL DUE</span>
-            <span className="orb" style={{color:C.green,fontWeight:700,fontSize:15}}>${total.toFixed(2)}</span>
+            <span className="orb" style={{color:C.green,fontWeight:700,fontSize:15}}>{fmtP(total)}</span>
           </div>
-          <div style={{fontFamily:"Share Tech Mono",fontSize:8,color:C.muted,textAlign:"center",marginBottom:12,lineHeight:1.6}}>
-            🔒 Card details are handled by Stripe · Never stored on our servers
-          </div>
-          {!stripe&&<div style={{fontFamily:"Share Tech Mono",fontSize:9,color:"#ff9900",marginBottom:8}}>⚠ Stripe not loaded — add NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY to .env.local</div>}
         </div>}
 
-        {/* API/network error */}
         {err&&<div style={{fontFamily:"Share Tech Mono",fontSize:10,color:C.red,marginTop:8}}>⚠ {err}</div>}
 
-        {/* Navigation buttons */}
         <div style={{display:"flex",gap:10,marginTop:18}}>
-          {step>1&&step<4&&<button className="btn-o" onClick={()=>setStep(s=>s-1)}>← BACK</button>}
-          {step===4&&<button className="btn-o" onClick={()=>setStep(3)}>← BACK</button>}
-
-          {step<3&&(
-            <button className="btn" style={{flex:1}} disabled={!ok} onClick={advance}>CONTINUE →</button>
-          )}
-          {step===3&&(
-            <button className="btn" style={{flex:1,opacity:loading?.5:1}} disabled={loading} onClick={advance}>
-              {loading?"...":(f.pay==="card"?"CONTINUE TO PAYMENT →":"🔒 PLACE ORDER")}
-            </button>
-          )}
-          {step===4&&(
-            <button className="btn" style={{flex:1,opacity:(paying||!stripe)?.5:1}} disabled={paying||!stripe} onClick={handlePay}>
-              {paying?"⏳ PROCESSING...":"🔒 PAY $"+total.toFixed(2)}
-            </button>
-          )}
+          {step>1&&<button className="btn-o" onClick={()=>setStep(s=>s-1)}>← BACK</button>}
+          <button className="btn" style={{flex:1,opacity:loading?0.5:1}} disabled={!ok||loading} onClick={advance}>
+            {loading?"⏳ PLACING ORDER...":(step<3?"CONTINUE →":"🔒 PLACE ORDER")}
+          </button>
         </div>
-
-        {step===4&&(
-          <div style={{marginTop:10,display:"flex",gap:6,justifyContent:"center",flexWrap:"wrap"}}>
-            {["VISA","MASTERCARD","AMEX","DISCOVER"].map(m=>(
-              <span key={m} style={{fontSize:8,background:C.card2,padding:"2px 7px",borderRadius:3,color:C.muted,fontFamily:"Share Tech Mono",border:`1px solid ${C.border}`}}>{m}</span>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
@@ -691,7 +621,7 @@ function SupportPage(){
   const FAQS=[
     ["How do I track my order?","After shipping you'll receive an email with a real-time tracking link."],
     ["Can I return a product?","Returns accepted within 30 days in original condition and packaging."],
-    ["What payment methods are accepted?","Stripe (Visa, Mastercard, Amex), PayPal, and Mobile Money."],
+    ["What payment methods are accepted?","MTN Mobile Money. Dial *165# and follow the prompts to complete your payment."],
     ["How long does shipping take?","Standard 3–7 business days. Express available at checkout."],
     ["Do products include warranty?","All items include manufacturer warranty. Extended plans available."],
   ];
@@ -1018,7 +948,7 @@ function Uploader({products,setProducts,onRefresh}){
           </div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
             <div>
-              <label style={{fontFamily:"Share Tech Mono",fontSize:9,color:C.muted,display:"block",marginBottom:4,letterSpacing:1}}>PRICE ($) *</label>
+              <label style={{fontFamily:"Share Tech Mono",fontSize:9,color:C.muted,display:"block",marginBottom:4,letterSpacing:1}}>PRICE (FCFA) *</label>
               <input type="number" placeholder="299" value={form.price} onChange={sf("price")}/>
             </div>
             <div>
@@ -1056,7 +986,7 @@ function Uploader({products,setProducts,onRefresh}){
                 <div style={{fontFamily:"Share Tech Mono",fontSize:9,color:C.muted}}>/ {form.seller}</div>
               </div>
               <span className="orb" style={{color:C.green,fontWeight:700,fontSize:13}}>
-                ${form.disc>0?(form.price*(1-form.disc/100)).toFixed(2):parseFloat(form.price||0).toFixed(2)}
+                {fmtP(form.disc>0?Math.round(form.price*(1-form.disc/100)):Math.round(parseFloat(form.price||0)))}
               </span>
             </div>
           )}
@@ -1099,7 +1029,7 @@ function Manager({products,setProducts,onRefresh}){
             <div style={{flex:1,minWidth:0}}>
               <div style={{fontSize:13,fontWeight:600,marginBottom:2}}>{p.name}</div>
               <div style={{fontFamily:"Share Tech Mono",fontSize:9,color:C.muted}}>
-                {CATS.find(c=>c.id===p.cat)?.name} · ${p.price} · {p.stock} units
+                {CATS.find(c=>c.id===p.cat)?.name} · {fmtP(p.price)} · {p.stock} units
                 {p.hot&&<span style={{color:C.green,marginLeft:8}}>▲HOT</span>}
                 {p.isNew&&<span style={{color:C.cyan,marginLeft:6}}>✦NEW</span>}
                 {p.hidden&&<span style={{color:C.red,marginLeft:6}}>⊘ HIDDEN</span>}
@@ -1339,7 +1269,7 @@ export default function ShopPage(){
       {/* Modals */}
       {authModal && <AuthModal onClose={()=>setAuthModal(null)} initialTab={authModal}/>}
       {viewP     && <ProductModal  p={viewP} onClose={()=>setViewP(null)} onCart={addCart} wish={wish} onWish={toggleWish}/>}
-      {checkout  && <Elements stripe={stripePromise}><CheckoutModal cart={cart} onClose={()=>setCheckout(false)} onDone={placeOrder}/></Elements>}
+      {checkout  && <CheckoutModal cart={cart} onClose={()=>setCheckout(false)} onDone={placeOrder}/>}
       {orderDone && <OrderSuccess  order={orderDone} onClose={()=>{setOrderDone(null);nav("home");}}/>}
       {toast     && <Toast msg={toast} onClose={()=>setToast(null)}/>}
     </div>

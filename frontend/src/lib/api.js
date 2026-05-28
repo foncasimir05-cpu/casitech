@@ -72,12 +72,6 @@ export const categoriesAPI = {
   getAll: () => api.get('/categories'),
 };
 
-export const paymentsAPI = {
-  createCheckout: (d)                        => api.post('/payments/create-checkout', d),
-  createIntent:   (amount, currency, orderId) => api.post('/payments/create-intent', { amount, currency, orderId }),
-  confirm:        (orderId, paymentIntentId)  => api.post('/payments/confirm', { orderId, paymentIntentId }),
-};
-
 export const uploadAPI = {
   image: (file) => {
     const form = new FormData();

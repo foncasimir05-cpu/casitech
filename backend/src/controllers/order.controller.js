@@ -3,13 +3,18 @@ const { sendEmail, orderConfirmationEmail } = require('../utils/sendEmail');
 
 exports.create = async (req, res) => {
   try {
-    const { items, shipping_address, payment_method, notes } = req.body;
+    const { items, shipping_address, payment_method, notes, momo_phone, momo_reference } = req.body;
     const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
-    const total_price = subtotal; // add tax/shipping logic here
+    const total_price = subtotal;
+    let orderNotes = notes || '';
+    if (payment_method === 'momo' && momo_reference) {
+      const momoInfo = `MTN MoMo: ${momo_phone || shipping_address.phone} | Ref: ${momo_reference}`;
+      orderNotes = orderNotes ? `${momoInfo} | ${orderNotes}` : momoInfo;
+    }
     const { rows } = await query(
       `INSERT INTO orders(user_id,user_email,user_contact,items,subtotal,total_price,shipping_address,payment_method,notes)
        VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
-      [req.user.id, req.user.email, shipping_address.phone, JSON.stringify(items), subtotal, total_price, JSON.stringify(shipping_address), payment_method, notes]
+      [req.user.id, req.user.email, shipping_address.phone, JSON.stringify(items), subtotal, total_price, JSON.stringify(shipping_address), payment_method, orderNotes]
     );
     // Send confirmation email (non-blocking)
     sendEmail({ to: req.user.email, subject: 'Order Confirmed — Casitech', html: orderConfirmationEmail({ ...rows[0], user_name: req.user.name }) }).catch(console.error);

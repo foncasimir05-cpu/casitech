@@ -30,10 +30,6 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// ─── Stripe Webhook — raw body MUST come before express.json() ────────────────
-const paymentCtrl = require('./controllers/payment.controller');
-app.post('/api/v1/payments/webhook', express.raw({ type: 'application/json' }), paymentCtrl.webhook);
-
 // ─── Body Parsing ──────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
