@@ -701,6 +701,7 @@ function AdminLogin({onLogin}){
 // ─── Product Uploader ──────────────────────────────────────────────────────────
 function Uploader({products,setProducts,onRefresh}){
   const [imgData,setImgData]=useState(null);
+  const [imgFile,setImgFile]=useState(null);
   const [form,setForm]=useState({name:"",cat:1,price:"",disc:0,stock:"",desc:"",seller:"Casitech Store",hot:false,isNew:true});
   const [stage,setStage]=useState("idle"); // idle|preview|analyzing|ready|done
   const [drag,setDrag]=useState(false);
@@ -714,6 +715,7 @@ function Uploader({products,setProducts,onRefresh}){
   // ── Load from File object ──
   const loadFile=file=>{
     if(!file||!file.type.startsWith("image/"))return;
+    setImgFile(file);
     const r=new FileReader();
     r.onload=e=>{setImgData(e.target.result);setStage("preview");setUrlErr("");};
     r.readAsDataURL(file);
@@ -814,12 +816,13 @@ function Uploader({products,setProducts,onRefresh}){
       fd.append('price',form.price);fd.append('discount',form.disc||0);
       fd.append('category_id',form.cat);fd.append('stock',form.stock);
       fd.append('is_hot',form.hot);fd.append('is_new',form.isNew);
+      if(imgFile)fd.append('images',imgFile);
       await productsAPI.create(fd);
       if(onRefresh)await onRefresh();
     }catch(e){console.warn('DB save failed (offline or missing Cloudinary config):',e.message);}
   };
 
-  const reset=()=>{setImgData(null);setStage("idle");setUrlInput("");setUrlErr("");setForm({name:"",cat:1,price:"",disc:0,stock:"",desc:"",seller:"Casitech Store",hot:false,isNew:true});};
+  const reset=()=>{setImgData(null);setImgFile(null);setStage("idle");setUrlInput("");setUrlErr("");setForm({name:"",cat:1,price:"",disc:0,stock:"",desc:"",seller:"Casitech Store",hot:false,isNew:true});};
   const sf=k=>e=>setForm(f=>({...f,[k]:e.target.type==="checkbox"?e.target.checked:e.target.value}));
 
   if(stage==="done") return(
