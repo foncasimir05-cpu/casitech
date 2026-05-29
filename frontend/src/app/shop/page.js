@@ -45,6 +45,54 @@ const css = `
   .toast{position:fixed;top:72px;right:18px;background:${C.card};border:1px solid ${C.green}66;border-radius:6px;padding:11px 16px;z-index:2000;animation:fadeIn .25s ease;box-shadow:0 0 20px ${C.green}22;display:flex;align-items:center;gap:10px}
   .sec{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:${C.green};display:flex;align-items:center;gap:10px;margin-bottom:16px}
   .sec::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,${C.green}44,transparent)}
+  /* ── Responsive ─────────────────────────────────────────────────────────── */
+  .hamburger{display:none;flex-direction:column;gap:4px;background:none;border:1px solid ${C.border};cursor:pointer;padding:7px 8px;border-radius:5px;align-items:center;justify-content:center;flex-shrink:0}
+  .hamburger span{display:block;width:18px;height:2px;background:${C.green};border-radius:1px}
+  .nav-links{display:flex;align-items:center}
+  .nav-links>button{display:flex;align-items:center;gap:5px}
+  .nav-lbl{}
+  .nav-auth-mobile{display:none}
+  .auth-desktop{display:flex;align-items:center;gap:6px;margin-right:8px}
+  .cat-grid{display:grid;gap:8px;margin-bottom:36px;grid-template-columns:repeat(10,1fr)}
+  .prod-grid{display:grid;gap:14px;grid-template-columns:repeat(4,1fr)}
+  .cart-grid{display:grid;gap:18px;align-items:start;grid-template-columns:1fr 290px}
+  .filter-grid{display:grid;gap:10px;align-items:end;grid-template-columns:1fr 1fr 1fr auto}
+  .admin-stats{display:grid;gap:10px;margin-bottom:24px;grid-template-columns:repeat(4,1fr)}
+  .support-grid{display:grid;gap:24px;grid-template-columns:1fr 1fr}
+  .uploader-grid{display:grid;gap:22px;align-items:start;grid-template-columns:1fr 1fr}
+  @media(max-width:640px){
+    .hamburger{display:flex}
+    .auth-desktop{display:none}
+    .nav-lbl{display:none}
+    .nav-sep{display:none}
+    .nav-links{display:none;position:fixed;top:60px;left:0;right:0;flex-direction:column;align-items:stretch;background:${C.bg2}f5;backdrop-filter:blur(16px);border-bottom:1px solid ${C.border};padding:8px 16px 16px;z-index:98;gap:2px}
+    .nav-links.open{display:flex}
+    .nav-links>button{height:auto!important;padding:11px 8px!important;width:100%;border-bottom:none!important}
+    .nav-auth-mobile{display:flex;flex-direction:column;gap:8px;padding-top:12px;border-top:1px solid ${C.border};margin-top:6px}
+    .hero-banner{padding:24px 16px!important}
+    .hero-title{font-size:20px!important;letter-spacing:0!important}
+    .hero-sub{font-size:12px!important;margin-bottom:16px!important}
+    .cat-grid{grid-template-columns:repeat(3,1fr)}
+    .prod-grid{grid-template-columns:1fr}
+    .cart-grid{grid-template-columns:1fr}
+    .cart-sticky{position:static!important;top:auto!important}
+    .filter-grid{grid-template-columns:1fr 1fr}
+    .admin-stats{grid-template-columns:repeat(2,1fr)}
+    .support-grid{grid-template-columns:1fr}
+    .uploader-grid{grid-template-columns:1fr}
+    .overlay{align-items:flex-end!important;padding:0!important}
+    .modal{max-width:100%!important;border-radius:16px 16px 0 0!important;max-height:92dvh!important}
+    .page-pad{padding:18px 14px 50px!important}
+    .page-title{font-size:14px!important;letter-spacing:1px!important}
+    .sec{font-size:10px!important;letter-spacing:1px!important}
+  }
+  @media(min-width:641px) and (max-width:1024px){
+    .cat-grid{grid-template-columns:repeat(5,1fr)}
+    .prod-grid{grid-template-columns:repeat(2,1fr)}
+    .cart-grid{grid-template-columns:1fr}
+    .cart-sticky{position:static!important;top:auto!important}
+    .filter-grid{grid-template-columns:1fr 1fr}
+  }
 `;
 
 // ─── Data ──────────────────────────────────────────────────────────────────────
@@ -168,13 +216,13 @@ function HomePage({products,onCart,onView,wish,onWish,onNav}){
   return(
     <div className="fade-in">
       {/* Hero */}
-      <div style={{borderRadius:8,padding:"48px 40px",marginBottom:32,position:"relative",overflow:"hidden",border:`1px solid ${C.border}`,background:`linear-gradient(135deg,${C.card} 0%,#080810 100%)`}}>
+      <div className="hero-banner" style={{borderRadius:8,padding:"48px 40px",marginBottom:32,position:"relative",overflow:"hidden",border:`1px solid ${C.border}`,background:`linear-gradient(135deg,${C.card} 0%,#080810 100%)`}}>
         <div style={{position:"absolute",inset:0,background:`radial-gradient(ellipse at 65% 50%,${BANNERS[bi].col}12 0%,transparent 65%)`,transition:"background .6s"}}/>
         <div style={{position:"absolute",top:0,right:0,width:180,height:"100%",opacity:.05,background:`repeating-linear-gradient(90deg,${C.green} 0,${C.green} 1px,transparent 1px,transparent 38px),repeating-linear-gradient(0deg,${C.green} 0,${C.green} 1px,transparent 1px,transparent 38px)`}}/>
         <div style={{position:"relative"}}>
           <span style={{fontFamily:"Share Tech Mono",fontSize:10,letterSpacing:3,background:`${BANNERS[bi].col}1a`,color:BANNERS[bi].col,padding:"4px 12px",borderRadius:3,border:`1px solid ${BANNERS[bi].col}44`}}>{BANNERS[bi].tag}</span>
-          <h1 className="orb glow" style={{fontSize:34,fontWeight:900,marginTop:14,marginBottom:10,letterSpacing:-0.5}}>{BANNERS[bi].title}</h1>
-          <p style={{color:C.muted,fontSize:14,marginBottom:26}}>{BANNERS[bi].sub}</p>
+          <h1 className="orb glow hero-title" style={{fontSize:34,fontWeight:900,marginTop:14,marginBottom:10,letterSpacing:-0.5}}>{BANNERS[bi].title}</h1>
+          <p className="hero-sub" style={{color:C.muted,fontSize:14,marginBottom:26}}>{BANNERS[bi].sub}</p>
           <button className="btn" style={{fontSize:12,padding:"12px 30px",letterSpacing:2}} onClick={()=>onNav("shop")}>SHOP NOW →</button>
         </div>
         <div style={{position:"absolute",bottom:18,right:24,display:"flex",gap:6}}>
@@ -184,7 +232,7 @@ function HomePage({products,onCart,onView,wish,onWish,onNav}){
 
       {/* Categories */}
       <div className="sec">CATEGORIES</div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(100px,1fr))",gap:8,marginBottom:36}}>
+      <div className="cat-grid">
         {CATS.map(c=>(
           <div key={c.id} onClick={()=>onNav("shop",{cat:c.id})} className="card-hover"
             style={{background:C.card,borderRadius:6,padding:"13px 8px",textAlign:"center",cursor:"pointer",border:`1px solid ${C.border}`}}>
@@ -224,10 +272,10 @@ function ShopPageContent({products,onCart,onView,wish,onWish,initFilters}){
     .sort((a,b)=>sort==="price-asc"?a.price-b.price:sort==="price-desc"?b.price-a.price:sort==="rating"?b.rating-a.rating:b.reviews-a.reviews);
   return(
     <div className="fade-in">
-      <div className="orb" style={{fontSize:18,fontWeight:800,letterSpacing:2,marginBottom:4}}>PRODUCT CATALOG</div>
+      <div className="orb page-title" style={{fontSize:18,fontWeight:800,letterSpacing:2,marginBottom:4}}>PRODUCT CATALOG</div>
       <div style={{fontFamily:"Share Tech Mono",fontSize:10,color:C.muted,marginBottom:20}}>// CASITECH ELECTRONICS</div>
       <div style={{background:C.card,borderRadius:8,padding:14,marginBottom:20,border:`1px solid ${C.border}`}}>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr auto",gap:10,alignItems:"end"}}>
+        <div className="filter-grid">
           <div>
             <label style={{fontFamily:"Share Tech Mono",fontSize:9,color:C.muted,display:"block",marginBottom:4,letterSpacing:1}}>SEARCH</label>
             <input placeholder="Search..." value={search} onChange={e=>setSearch(e.target.value)}/>
@@ -255,7 +303,7 @@ function ShopPageContent({products,onCart,onView,wish,onWish,initFilters}){
         </div>
       </div>
       <div style={{fontFamily:"Share Tech Mono",fontSize:10,color:C.muted,marginBottom:14}}>// {filtered.length} PRODUCTS</div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:14}}>
+      <div className="prod-grid">
         {filtered.map(p=><PCard key={p.id} p={p} onCart={onCart} onView={onView} wish={wish} onWish={onWish}/>)}
       </div>
       {!filtered.length&&<div style={{textAlign:"center",padding:60,fontFamily:"Share Tech Mono",fontSize:11,color:C.muted}}>// NO PRODUCTS MATCH FILTERS</div>}
@@ -358,8 +406,8 @@ function CartPage({cart,onRemove,onQty,onCheckout}){
   );
   return(
     <div className="fade-in">
-      <div className="orb" style={{fontSize:18,fontWeight:800,letterSpacing:2,marginBottom:20}}>CART <span style={{color:C.green}}>({cart.length})</span></div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 290px",gap:18,alignItems:"start"}}>
+      <div className="orb page-title" style={{fontSize:18,fontWeight:800,letterSpacing:2,marginBottom:20}}>CART <span style={{color:C.green}}>({cart.length})</span></div>
+      <div className="cart-grid">
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
           {cart.map(item=>(
             <div key={item.p.id} style={{background:C.card,borderRadius:6,padding:14,border:`1px solid ${C.border}`,display:"flex",gap:14,alignItems:"center"}}>
@@ -383,7 +431,7 @@ function CartPage({cart,onRemove,onQty,onCheckout}){
             </div>
           ))}
         </div>
-        <div style={{background:C.card,borderRadius:8,padding:16,border:`1px solid ${C.border}`,position:"sticky",top:72}}>
+        <div className="cart-sticky" style={{background:C.card,borderRadius:8,padding:16,border:`1px solid ${C.border}`,position:"sticky",top:72}}>
           <div className="orb" style={{fontSize:12,fontWeight:700,marginBottom:12,letterSpacing:1}}>ORDER SUMMARY</div>
           {cart.map(i=><div key={i.p.id} style={{display:"flex",justifyContent:"space-between",fontSize:11,color:C.muted,marginBottom:5}}><span>{i.p.name} ×{i.qty}</span><span>{fmtP(fp(i.p)*i.qty)}</span></div>)}
           <div className="hr"/>
@@ -604,8 +652,8 @@ function WishlistPage({wish,products,onCart,onView,onWish}){
   );
   return(
     <div className="fade-in">
-      <div className="orb" style={{fontSize:18,fontWeight:800,letterSpacing:2,marginBottom:20}}>WISHLIST <span style={{color:C.green}}>({wished.length})</span></div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:14}}>
+      <div className="orb page-title" style={{fontSize:18,fontWeight:800,letterSpacing:2,marginBottom:20}}>WISHLIST <span style={{color:C.green}}>({wished.length})</span></div>
+      <div className="prod-grid">
         {wished.map(p=><PCard key={p.id} p={p} onCart={onCart} onView={onView} wish={wish} onWish={onWish}/>)}
       </div>
     </div>
@@ -629,7 +677,7 @@ function SupportPage(){
     <div className="fade-in">
       <div className="orb" style={{fontSize:18,fontWeight:800,letterSpacing:2,marginBottom:4}}>SUPPORT CENTER</div>
       <div style={{fontFamily:"Share Tech Mono",fontSize:10,color:C.muted,marginBottom:24}}>// 24/7 TECHNICAL SUPPORT</div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:24}}>
+      <div className="support-grid">
         <div>
           <div className="sec">FAQ</div>
           {FAQS.map(([q,a],i)=>(
@@ -835,7 +883,7 @@ function Uploader({products,setProducts,onRefresh}){
   );
 
   return(
-    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:22,alignItems:"start"}}>
+    <div className="uploader-grid">
       {/* Left: image */}
       <div>
         <div style={{fontFamily:"Share Tech Mono",fontSize:9,color:C.green,letterSpacing:2,marginBottom:12}}>// STEP 1 — LOAD PRODUCT IMAGE</div>
@@ -1104,7 +1152,7 @@ function AdminPage({products,setProducts,onRefresh,user}){
           <div style={{fontFamily:"Share Tech Mono",fontSize:9,color:C.muted,marginTop:3}}>// CASITECH CONTROL PANEL · {user.email}</div>
         </div>
       </div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:24}}>
+      <div className="admin-stats">
         {[
           {label:"TOTAL",value:products.length,icon:"📦"},
           {label:"IN STOCK",value:products.filter(p=>p.stock>0).length,icon:"✅"},
@@ -1144,6 +1192,7 @@ export default function ShopPage(){
   const [products,setProducts]=useState(INIT_PRODUCTS);
   const [authModal,setAuthModal]=useState(null); // null | 'login' | 'register'
   const [productsLoading,setProductsLoading]=useState(true);
+  const [menuOpen,setMenuOpen]=useState(false);
 
   const {user,logout}=useAuthStore();
 
@@ -1195,47 +1244,74 @@ export default function ShopPage(){
       <style>{css}</style>
 
       {/* ── Navbar ── */}
-      <nav style={{position:"sticky",top:0,zIndex:100,background:`${C.bg2}f0`,backdropFilter:"blur(12px)",borderBottom:`1px solid ${C.border}`,padding:"0 20px"}}>
+      <nav style={{position:"sticky",top:0,zIndex:100,background:`${C.bg2}f0`,backdropFilter:"blur(12px)",borderBottom:`1px solid ${C.border}`,padding:"0 16px"}}>
         <div style={{maxWidth:1200,margin:"0 auto",display:"flex",alignItems:"center",height:60,gap:0}}>
           {/* Logo */}
-          <div onClick={()=>nav("home")} style={{cursor:"pointer",display:"flex",alignItems:"center",marginRight:18}}>
+          <div onClick={()=>{nav("home");setMenuOpen(false);}} style={{cursor:"pointer",display:"flex",alignItems:"center",marginRight:12,flexShrink:0}}>
             <span className="orb" style={{fontWeight:900,fontSize:17,color:C.green,letterSpacing:1,textShadow:`0 0 12px ${C.green}66`}}>CASI</span>
             <span className="orb" style={{fontWeight:900,fontSize:17,color:C.text,letterSpacing:1}}>TECH</span>
           </div>
-          <div style={{width:1,height:22,background:C.border,marginRight:14}}/>
-          {/* Nav links */}
-          {[["home","HOME"],["shop","SHOP"],["wishlist","WISH"],["support","HELP"]].map(([p,l])=>(
-            <button key={p} onClick={()=>nav(p)} style={{background:"none",border:"none",color:page===p?C.green:C.muted,cursor:"pointer",fontFamily:"Orbitron",fontWeight:600,fontSize:9,letterSpacing:1.5,padding:"4px 10px",borderBottom:page===p?`2px solid ${C.green}`:"2px solid transparent",transition:"all .15s",height:60,whiteSpace:"nowrap"}}>{l}</button>
-          ))}
-          <div style={{flex:1}}/>
-          {/* Auth / User area */}
-          {user?(
-            <div style={{display:"flex",alignItems:"center",gap:6,marginRight:8}}>
-              {user.role==="admin"&&(
-                <button onClick={()=>nav("admin")} style={{background:page==="admin"?`${C.green}22`:"#ff990018",border:`1px solid ${page==="admin"?C.green:"#ff9900aa"}`,borderRadius:5,padding:"6px 11px",cursor:"pointer",color:page==="admin"?C.green:"#ff9900",fontFamily:"Orbitron",fontWeight:700,fontSize:9,letterSpacing:1.5,whiteSpace:"nowrap"}}>
-                  ⚙ ADMIN
+          <div className="nav-sep" style={{width:1,height:22,background:C.border,marginRight:14}}/>
+          {/* Nav links — desktop row / mobile dropdown */}
+          <div className={`nav-links${menuOpen?" open":""}`}>
+            {[["home","🏠","HOME"],["shop","🛍","SHOP"],["wishlist","♡","WISH"],["support","❓","HELP"]].map(([p,icon,l])=>(
+              <button key={p} onClick={()=>{nav(p);setMenuOpen(false);}} style={{background:"none",border:"none",color:page===p?C.green:C.muted,cursor:"pointer",fontFamily:"Orbitron",fontWeight:600,fontSize:9,letterSpacing:1.5,padding:"4px 10px",borderBottom:page===p?`2px solid ${C.green}`:"2px solid transparent",transition:"all .15s",height:60,whiteSpace:"nowrap"}}>
+                <span>{icon}</span><span className="nav-lbl">{l}</span>
+              </button>
+            ))}
+            {/* Auth — shown only inside mobile dropdown */}
+            <div className="nav-auth-mobile">
+              {user?(
+                <>
+                  {user.role==="admin"&&<button onClick={()=>{nav("admin");setMenuOpen(false);}} style={{background:"#ff990018",border:"1px solid #ff9900aa",borderRadius:5,padding:"9px 12px",cursor:"pointer",color:"#ff9900",fontFamily:"Orbitron",fontWeight:700,fontSize:9,letterSpacing:1.5,textAlign:"left"}}>⚙ ADMIN</button>}
+                  <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:5,padding:"9px 12px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                    <span style={{fontFamily:"Share Tech Mono",fontSize:10,color:C.green}}>/ {user.name}</span>
+                    <button onClick={()=>{logout();nav("home");setMenuOpen(false);}} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontFamily:"Orbitron",fontSize:8,letterSpacing:1}}>⏻ LOGOUT</button>
+                  </div>
+                </>
+              ):(
+                <button onClick={()=>{setAuthModal('login');setMenuOpen(false);}} style={{background:C.card,border:`1px solid ${C.green}66`,borderRadius:5,padding:"10px 12px",cursor:"pointer",color:C.green,fontFamily:"Orbitron",fontWeight:700,fontSize:9,letterSpacing:1.5}}>
+                  LOGIN
                 </button>
               )}
-              <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:5,padding:"6px 11px",display:"flex",alignItems:"center",gap:8}}>
-                <span style={{fontFamily:"Share Tech Mono",fontSize:9,color:C.green,maxWidth:100,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>/ {user.name}</span>
-                <button onClick={()=>{logout();nav("home");}} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontFamily:"Orbitron",fontSize:8,letterSpacing:1,padding:0}}>⏻</button>
-              </div>
             </div>
-          ):(
-            <button onClick={()=>setAuthModal('login')} style={{background:C.card,border:`1px solid ${C.green}66`,borderRadius:5,padding:"6px 13px",cursor:"pointer",color:C.green,fontFamily:"Orbitron",fontWeight:700,fontSize:9,letterSpacing:1.5,marginRight:8,whiteSpace:"nowrap"}}>
-              LOGIN
-            </button>
-          )}
+          </div>
+          <div style={{flex:1}}/>
+          {/* Auth — desktop only */}
+          <div className="auth-desktop">
+            {user?(
+              <>
+                {user.role==="admin"&&(
+                  <button onClick={()=>nav("admin")} style={{background:page==="admin"?`${C.green}22`:"#ff990018",border:`1px solid ${page==="admin"?C.green:"#ff9900aa"}`,borderRadius:5,padding:"6px 11px",cursor:"pointer",color:page==="admin"?C.green:"#ff9900",fontFamily:"Orbitron",fontWeight:700,fontSize:9,letterSpacing:1.5,whiteSpace:"nowrap"}}>
+                    ⚙ ADMIN
+                  </button>
+                )}
+                <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:5,padding:"6px 11px",display:"flex",alignItems:"center",gap:8}}>
+                  <span style={{fontFamily:"Share Tech Mono",fontSize:9,color:C.green,maxWidth:100,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>/ {user.name}</span>
+                  <button onClick={()=>{logout();nav("home");}} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontFamily:"Orbitron",fontSize:8,letterSpacing:1,padding:0}}>⏻</button>
+                </div>
+              </>
+            ):(
+              <button onClick={()=>setAuthModal('login')} style={{background:C.card,border:`1px solid ${C.green}66`,borderRadius:5,padding:"6px 13px",cursor:"pointer",color:C.green,fontFamily:"Orbitron",fontWeight:700,fontSize:9,letterSpacing:1.5,whiteSpace:"nowrap"}}>
+                LOGIN
+              </button>
+            )}
+          </div>
           {/* Cart */}
-          <button onClick={()=>nav("cart")} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:5,padding:"6px 13px",cursor:"pointer",color:C.text,display:"flex",alignItems:"center",gap:7,fontFamily:"Orbitron",fontSize:9,letterSpacing:1,whiteSpace:"nowrap"}}>
-            🛒 CART
+          <button onClick={()=>{nav("cart");setMenuOpen(false);}} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:5,padding:"6px 10px",cursor:"pointer",color:C.text,display:"flex",alignItems:"center",gap:6,fontFamily:"Orbitron",fontSize:9,letterSpacing:1,whiteSpace:"nowrap",marginLeft:6}}>
+            🛒<span className="nav-lbl"> CART</span>
             {cartCount>0&&<span style={{background:C.green,color:"#000",borderRadius:3,padding:"1px 6px",fontSize:9,fontFamily:"Orbitron",fontWeight:700}}>{cartCount}</span>}
           </button>
+          {/* Hamburger */}
+          <button className="hamburger" onClick={()=>setMenuOpen(m=>!m)} style={{marginLeft:8}} aria-label="Menu">
+            <span/><span/><span/>
+          </button>
         </div>
+        {menuOpen&&<div onClick={()=>setMenuOpen(false)} style={{position:"fixed",inset:0,top:60,zIndex:97}}/>}
       </nav>
 
       {/* ── Pages ── */}
-      <main style={{maxWidth:1200,margin:"0 auto",padding:"26px 20px 60px"}}>
+      <main className="page-pad" style={{maxWidth:1200,margin:"0 auto",padding:"26px 20px 60px"}}>
         {productsLoading&&(page==="home"||page==="shop")&&(
           <div style={{textAlign:"center",padding:"60px 0",fontFamily:"Share Tech Mono",fontSize:11,color:C.muted}}>
             <div style={{width:40,height:40,border:`3px solid ${C.border}`,borderTopColor:C.green,borderRadius:"50%",animation:"spin 0.8s linear infinite",margin:"0 auto 16px"}}/>
