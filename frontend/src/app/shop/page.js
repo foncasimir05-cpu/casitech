@@ -49,7 +49,8 @@ const css = `
   .hamburger{display:none;flex-direction:column;gap:4px;background:none;border:1px solid ${C.border};cursor:pointer;padding:7px 8px;border-radius:5px;align-items:center;justify-content:center;flex-shrink:0}
   .hamburger span{display:block;width:18px;height:2px;background:${C.green};border-radius:1px}
   .nav-links{display:flex;align-items:center}
-  .nav-links>button{display:flex;align-items:center;gap:5px}
+  .nav-links>button{display:flex;align-items:center;gap:6px}
+  .nav-icon{font-size:15px;line-height:1}
   .nav-lbl{}
   .nav-auth-mobile{display:none}
   .auth-desktop{display:flex;align-items:center;gap:6px;margin-right:8px}
@@ -67,7 +68,9 @@ const css = `
     .nav-sep{display:none}
     .nav-links{display:none;position:fixed;top:60px;left:0;right:0;flex-direction:column;align-items:stretch;background:${C.bg2}f5;backdrop-filter:blur(16px);border-bottom:1px solid ${C.border};padding:8px 16px 16px;z-index:98;gap:2px}
     .nav-links.open{display:flex}
-    .nav-links>button{height:auto!important;padding:11px 8px!important;width:100%;border-bottom:none!important}
+    .nav-links>button{height:auto!important;min-height:44px;padding:12px 14px!important;width:100%;border-bottom:none!important;font-size:12px!important;letter-spacing:1.5px!important;border-left:3px solid transparent}
+    .nav-links>button.nav-active{background:${C.green}18!important;border-left:3px solid ${C.green}!important}
+    .nav-icon{font-size:20px}
     .nav-auth-mobile{display:flex;flex-direction:column;gap:8px;padding-top:12px;border-top:1px solid ${C.border};margin-top:6px}
     .hero-banner{padding:24px 16px!important}
     .hero-title{font-size:20px!important;letter-spacing:0!important}
@@ -707,8 +710,12 @@ function SupportPage(){
             </div>
           )}
           <div style={{marginTop:18,background:C.card,borderRadius:8,padding:14,border:`1px solid ${C.border}`}}>
-            <div style={{fontFamily:"Share Tech Mono",fontSize:9,color:C.green,letterSpacing:1,marginBottom:8}}>// CONTACT INFO</div>
-            <div style={{fontSize:12,color:C.muted,lineHeight:2.2}}>📧 support@casitech.com<br/>📞 +1 (800) CASITECH<br/>💬 Live chat Mon–Fri 09:00–18:00</div>
+            <div style={{fontFamily:"Share Tech Mono",fontSize:9,color:C.green,letterSpacing:1,marginBottom:8}}>// GET IN TOUCH</div>
+            <div style={{fontSize:12,color:C.muted,lineHeight:2.2}}>
+              📧 <a href="mailto:foncasimir05@gmail.com" style={{color:C.muted,textDecoration:"none"}}>foncasimir05@gmail.com</a><br/>
+              📞 <a href="tel:+237681735778" style={{color:C.muted,textDecoration:"none"}}>+237 681 735 778</a><br/>
+              💬 <a href="https://wa.me/237681735778" target="_blank" rel="noopener noreferrer" style={{color:C.green,textDecoration:"none"}}>WhatsApp us</a>
+            </div>
           </div>
         </div>
       </div>
@@ -1255,8 +1262,8 @@ export default function ShopPage(){
           {/* Nav links — desktop row / mobile dropdown */}
           <div className={`nav-links${menuOpen?" open":""}`}>
             {[["home","🏠","HOME"],["shop","🛍","SHOP"],["wishlist","♡","WISH"],["support","❓","HELP"]].map(([p,icon,l])=>(
-              <button key={p} onClick={()=>{nav(p);setMenuOpen(false);}} style={{background:"none",border:"none",color:page===p?C.green:C.muted,cursor:"pointer",fontFamily:"Orbitron",fontWeight:600,fontSize:9,letterSpacing:1.5,padding:"4px 10px",borderBottom:page===p?`2px solid ${C.green}`:"2px solid transparent",transition:"all .15s",height:60,whiteSpace:"nowrap"}}>
-                <span>{icon}</span><span className="nav-lbl">{l}</span>
+              <button key={p} onClick={()=>{nav(p);setMenuOpen(false);}} className={page===p?"nav-active":""} style={{background:"none",border:"none",color:page===p?C.green:C.muted,cursor:"pointer",fontFamily:"Orbitron",fontWeight:600,fontSize:9,letterSpacing:1.5,padding:"4px 10px",borderBottom:page===p?`2px solid ${C.green}`:"2px solid transparent",transition:"all .15s",height:60,whiteSpace:"nowrap"}}>
+                <span className="nav-icon">{icon}</span><span className="nav-lbl">{l}</span>
               </button>
             ))}
             {/* Auth — shown only inside mobile dropdown */}
@@ -1336,14 +1343,22 @@ export default function ShopPage(){
         <div className="orb" style={{fontWeight:900,fontSize:15,letterSpacing:3,marginBottom:5}}>
           <span style={{color:C.green}}>CASI</span><span style={{color:C.text}}>TECH</span>
         </div>
-        <div style={{fontFamily:"Share Tech Mono",fontSize:9,color:C.muted,marginBottom:8}}>// ELECTRONICS MARKETPLACE © 2026</div>
+        <div style={{fontFamily:"Share Tech Mono",fontSize:9,color:C.muted,marginBottom:6}}>// ELECTRONICS MARKETPLACE © 2026</div>
+        <div style={{fontFamily:"Share Tech Mono",fontSize:9,color:C.muted,marginBottom:10,lineHeight:1.9}}>
+          <a href="mailto:foncasimir05@gmail.com" style={{color:C.muted,textDecoration:"none"}}>📧 foncasimir05@gmail.com</a>
+          {"  ·  "}
+          <a href="tel:+237681735778" style={{color:C.muted,textDecoration:"none"}}>📞 +237 681 735 778</a>
+        </div>
         <div style={{display:"flex",gap:14,justifyContent:"center"}}>
           {["Privacy","Terms","Cookies"].map(l=><span key={l} style={{cursor:"pointer",color:C.muted,fontSize:10,fontFamily:"Share Tech Mono"}}>{l}</span>)}
         </div>
       </footer>
 
-      {/* Floating help */}
-      <button onClick={()=>nav("support")} style={{position:"fixed",bottom:22,right:22,background:`linear-gradient(135deg,${C.green},${C.greenD})`,border:"none",borderRadius:5,width:46,height:46,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:`0 4px 18px ${C.green}55`,zIndex:50}}>💬</button>
+      {/* Floating WhatsApp button */}
+      <a href="https://wa.me/237681735778" target="_blank" rel="noopener noreferrer"
+        style={{position:"fixed",bottom:22,right:22,background:"#25D366",borderRadius:"50%",width:52,height:52,cursor:"pointer",fontSize:26,display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 4px 20px #25D36666",zIndex:50,textDecoration:"none",lineHeight:1}}>
+        💬
+      </a>
 
       {/* Modals */}
       {authModal && <AuthModal onClose={()=>setAuthModal(null)} initialTab={authModal}/>}
