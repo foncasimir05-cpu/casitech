@@ -1,5 +1,16 @@
 require('dotenv').config();
-const { pool } = require('./db');
+const { Pool } = require('pg');
+
+const DATABASE_URL = process.env.DATABASE_URL;
+if (!DATABASE_URL) {
+  console.error('❌ DATABASE_URL is not set — cannot run migrations');
+  process.exit(1);
+}
+
+const pool = new Pool({
+  connectionString: DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+});
 
 const migrate = async () => {
   console.log('Running migrations...');

@@ -1,8 +1,16 @@
+require('dotenv').config();
 const { Pool } = require('pg');
 
+const DATABASE_URL = process.env.DATABASE_URL;
+
+if (!DATABASE_URL && process.env.NODE_ENV === 'production') {
+  console.error('❌ DATABASE_URL is not set in production');
+  process.exit(1);
+}
+
 const pool = new Pool(
-  process.env.DATABASE_URL
-    ? { connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } }
+  DATABASE_URL
+    ? { connectionString: DATABASE_URL, ssl: { rejectUnauthorized: false } }
     : {
         host:     process.env.DB_HOST,
         port:     parseInt(process.env.DB_PORT),
