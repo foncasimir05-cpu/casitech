@@ -14,6 +14,13 @@ const uploadImage = async (filePath) => {
   return { url: result.secure_url, publicId: result.public_id };
 };
 
+const uploadBuffer = (buffer, mimetype) => new Promise((resolve, reject) => {
+  cloudinary.uploader.upload_stream(
+    { folder: 'casitech/products', transformation: [{ width: 800, height: 800, crop: 'limit', quality: 'auto' }], resource_type: 'image' },
+    (err, result) => err ? reject(err) : resolve({ url: result.secure_url, publicId: result.public_id })
+  ).end(buffer);
+});
+
 const deleteImage = async (publicId) => cloudinary.uploader.destroy(publicId);
 
-module.exports = { uploadImage, deleteImage };
+module.exports = { uploadImage, uploadBuffer, deleteImage };

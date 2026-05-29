@@ -1,5 +1,5 @@
 const { query } = require('../config/db');
-const { uploadImage } = require('../utils/cloudinary');
+const { uploadBuffer } = require('../utils/cloudinary');
 
 exports.getAll = async (req, res) => {
   try {
@@ -42,7 +42,12 @@ exports.create = async (req, res) => {
     const { name, description, price, discount, category_id, stock, tags, is_hot, is_new } = req.body;
     let images = [];
     if (req.files?.length) {
-      images = await Promise.all(req.files.map(f => uploadImage(f.path).then(r => r.url)));
+      const results = await Promise.allSettled(
+        req.files.map(f => uploadBuffer(f.buffer, f.mimetype).then(r => r.url))
+      );
+      images = results.filter(r => r.status === 'fulfilled').map(r => r.value);
+      const failed = results.filter(r => r.status === 'rejected');
+      if (failed.length) console.error('Cloudinary upload errors:', failed.map(r => r.reason?.message));
     }
     const { rows } = await query(
       `INSERT INTO products(seller_id,name,description,price,discount,category_id,images,stock,tags,is_hot,is_new)

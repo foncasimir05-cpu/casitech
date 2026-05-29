@@ -1,9 +1,7 @@
-const { uploadImage } = require('../utils/cloudinary');
-const fs = require('fs');
+const { uploadBuffer } = require('../utils/cloudinary');
 exports.uploadImage = async (req, res) => {
   try {
-    const result = await uploadImage(req.file.path);
-    fs.unlinkSync(req.file.path); // clean up local file
+    const result = await uploadBuffer(req.file.buffer, req.file.mimetype);
     res.json({ url: result.url, publicId: result.publicId });
   } catch (err) {
     res.status(500).json({ error: err.message });
