@@ -124,6 +124,7 @@ const normalizeProduct = p => ({
   isNew: p.is_new,
   desc: p.description || '',
   imgSrc: p.images?.[0] || null,
+  images: p.images || [],
 });
 
 const INIT_PRODUCTS = [
@@ -318,6 +319,7 @@ function ShopPageContent({products,onCart,onView,wish,onWish,initFilters}){
 function ProductModal({p,onClose,onCart,wish,onWish}){
   const [qty,setQty]=useState(1);
   const [tab,setTab]=useState("desc");
+  const [imgIdx,setImgIdx]=useState(0);
   const [rev,setRev]=useState({rating:5,comment:""});
   const [reviews,setReviews]=useState([
     {name:"Alex M.",rating:5,comment:"Absolutely fantastic — performance exceeded expectations.",date:"2 days ago"},
@@ -325,19 +327,33 @@ function ProductModal({p,onClose,onCart,wish,onWish}){
   ]);
   const price=fp(p);
   const wished=wish.includes(p.id);
+  const imgs=p.images?.length?p.images:(p.imgSrc?[p.imgSrc]:[]);
   return(
     <div className="overlay" onClick={onClose}>
       <div className="modal fade-in" onClick={e=>e.stopPropagation()}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:16}}>
-          <div style={{fontSize:56,position:"relative",width:70,height:70,background:C.card2,borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden"}}>
-            {p.imgSrc?<img src={p.imgSrc} alt="" style={{width:"100%",height:"100%",objectFit:"cover",position:"absolute"}}/>:null}
-            <span style={{position:"relative"}}>{p.icon}</span>
+        {/* Image carousel */}
+        <div style={{position:"relative",width:"100%",height:210,background:C.card2,borderRadius:8,overflow:"hidden",marginBottom:16,flexShrink:0}}>
+          {imgs[imgIdx]
+            ?<img src={imgs[imgIdx]} alt="" style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>
+            :<div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100%",fontSize:64}}>{p.icon}</div>
+          }
+          {imgs.length>1&&<>
+            <button onClick={e=>{e.stopPropagation();setImgIdx(i=>(i-1+imgs.length)%imgs.length);}}
+              style={{position:"absolute",left:8,top:"50%",transform:"translateY(-50%)",background:"#000000aa",border:"none",color:"#fff",borderRadius:4,width:30,height:30,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center"}}>‹</button>
+            <button onClick={e=>{e.stopPropagation();setImgIdx(i=>(i+1)%imgs.length);}}
+              style={{position:"absolute",right:8,top:"50%",transform:"translateY(-50%)",background:"#000000aa",border:"none",color:"#fff",borderRadius:4,width:30,height:30,cursor:"pointer",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center"}}>›</button>
+            <div style={{position:"absolute",bottom:8,left:0,right:0,display:"flex",justifyContent:"center",gap:5}}>
+              {imgs.map((_,i)=>(
+                <div key={i} onClick={e=>{e.stopPropagation();setImgIdx(i);}}
+                  style={{width:i===imgIdx?18:5,height:4,borderRadius:2,background:i===imgIdx?"#fff":"#ffffff55",cursor:"pointer",transition:"all .25s"}}/>
+              ))}
+            </div>
+          </>}
+          <div style={{position:"absolute",top:8,left:8,display:"flex",gap:4}}>
+            {p.hot&&<span className="hot">▲ HOT</span>}
+            {p.isNew&&<span className="tag">// NEW</span>}
           </div>
-          <button onClick={onClose} style={{background:C.card2,border:`1px solid ${C.border}`,color:C.muted,cursor:"pointer",width:28,height:28,borderRadius:4,fontSize:13}}>✕</button>
-        </div>
-        <div style={{display:"flex",gap:6,marginBottom:8}}>
-          {p.hot&&<span className="hot">▲ HOT</span>}
-          {p.isNew&&<span className="tag">// NEW</span>}
+          <button onClick={onClose} style={{position:"absolute",top:8,right:8,background:"#000000bb",border:`1px solid ${C.border}55`,color:"#fff",cursor:"pointer",width:28,height:28,borderRadius:4,fontSize:13,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
         </div>
         <div className="orb" style={{fontSize:16,fontWeight:700,marginBottom:4,letterSpacing:.5}}>{p.name}</div>
         <div style={{fontFamily:"Share Tech Mono",fontSize:10,color:C.muted,marginBottom:10}}>/ {p.seller} · {CATS.find(c=>c.id===p.cat)?.name}</div>
@@ -757,8 +773,10 @@ function AdminLogin({onLogin}){
 function Uploader({products,setProducts,onRefresh}){
   const [imgData,setImgData]=useState(null);
   const [imgFile,setImgFile]=useState(null);
+  const [extraImgs,setExtraImgs]=useState([{data:null,file:null},{data:null,file:null}]);
+  const [publishErr,setPublishErr]=useState("");
   const [form,setForm]=useState({name:"",cat:1,price:"",disc:0,stock:"",desc:"",seller:"Casitech Store",hot:false,isNew:true});
-  const [stage,setStage]=useState("idle"); // idle|preview|analyzing|ready|done
+  const [stage,setStage]=useState("idle"); // idle|preview|analyzing|ready|saving|done
   const [drag,setDrag]=useState(false);
   const [urlInput,setUrlInput]=useState("");
   const [urlErr,setUrlErr]=useState("");
@@ -856,15 +874,8 @@ function Uploader({products,setProducts,onRefresh}){
 
   const publish=async()=>{
     if(!form.name||!form.price||!form.stock)return;
-    // Optimistic local update so the UI feels instant
-    setProducts(p=>[{
-      id:Date.now(),name:form.name,cat:Number(form.cat),price:parseFloat(form.price),
-      disc:Number(form.disc),stock:Number(form.stock),desc:form.desc,seller:form.seller,
-      hot:form.hot,isNew:form.isNew,icon:CAT_ICON[Number(form.cat)]||"📦",
-      rating:0,reviews:0,imgSrc:imgData,
-    },...p]);
-    setStage("done");
-    // Persist to DB then sync fresh data
+    setStage("saving");
+    setPublishErr("");
     try{
       const fd=new FormData();
       fd.append('name',form.name);fd.append('description',form.desc);
@@ -872,12 +883,17 @@ function Uploader({products,setProducts,onRefresh}){
       fd.append('category_id',form.cat);fd.append('stock',form.stock);
       fd.append('is_hot',form.hot);fd.append('is_new',form.isNew);
       if(imgFile)fd.append('images',imgFile);
+      extraImgs.forEach(e=>{if(e.file)fd.append('images',e.file);});
       await productsAPI.create(fd);
       if(onRefresh)await onRefresh();
-    }catch(e){console.warn('DB save failed (offline or missing Cloudinary config):',e.message);}
+      setStage("done");
+    }catch(e){
+      setPublishErr(e.response?.data?.error||'Save failed — check your connection and try again.');
+      setStage("ready");
+    }
   };
 
-  const reset=()=>{setImgData(null);setImgFile(null);setStage("idle");setUrlInput("");setUrlErr("");setForm({name:"",cat:1,price:"",disc:0,stock:"",desc:"",seller:"Casitech Store",hot:false,isNew:true});};
+  const reset=()=>{setImgData(null);setImgFile(null);setExtraImgs([{data:null,file:null},{data:null,file:null}]);setPublishErr("");setStage("idle");setUrlInput("");setUrlErr("");setForm({name:"",cat:1,price:"",disc:0,stock:"",desc:"",seller:"Casitech Store",hot:false,isNew:true});};
   const sf=k=>e=>setForm(f=>({...f,[k]:e.target.type==="checkbox"?e.target.checked:e.target.value}));
 
   if(stage==="done") return(
@@ -981,6 +997,40 @@ function Uploader({products,setProducts,onRefresh}){
         )}
 
         {/* Analyze / status */}
+        {/* Extra image slots — shown once main image is loaded */}
+        {imgData&&(
+          <div style={{marginTop:10}}>
+            <div style={{fontFamily:"Share Tech Mono",fontSize:8,color:C.muted,letterSpacing:1,marginBottom:6}}>// ADDITIONAL IMAGES (optional)</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+              {extraImgs.map((ex,i)=>(
+                <div key={i}>
+                  {ex.data?(
+                    <div style={{position:"relative",borderRadius:6,overflow:"hidden",height:76,border:`1px solid ${C.border}`}}>
+                      <img src={ex.data} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                      <button onClick={()=>setExtraImgs(s=>s.map((x,j)=>j===i?{data:null,file:null}:x))}
+                        style={{position:"absolute",top:3,right:3,background:"#000000cc",border:"none",borderRadius:3,color:"#fff",cursor:"pointer",width:18,height:18,fontSize:10,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
+                    </div>
+                  ):(
+                    <label style={{display:"block",cursor:"pointer"}}>
+                      <input type="file" accept="image/*" style={{display:"none"}} onChange={e=>{
+                        const file=e.target.files[0];
+                        if(!file||!file.type.startsWith("image/"))return;
+                        const r=new FileReader();
+                        r.onload=ev=>setExtraImgs(s=>s.map((x,j)=>j===i?{data:ev.target.result,file}:x));
+                        r.readAsDataURL(file);
+                      }}/>
+                      <div style={{border:`2px dashed ${C.border}`,borderRadius:6,height:76,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:4,background:C.card}}>
+                        <div style={{fontSize:18}}>📷</div>
+                        <div style={{fontFamily:"Share Tech Mono",fontSize:8,color:C.muted}}>IMG {i+2}</div>
+                      </div>
+                    </label>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {stage==="preview"&&(
           <div style={{marginTop:10,background:`${C.cyan}0d`,border:`1px solid ${C.cyan}33`,borderRadius:5,padding:"10px 12px",fontFamily:"Share Tech Mono",fontSize:10,color:C.cyan,textAlign:"center",letterSpacing:1}}>
             ⚙ AI Analysis coming soon — fill in details manually
@@ -1048,9 +1098,10 @@ function Uploader({products,setProducts,onRefresh}){
               </span>
             </div>
           )}
+          {publishErr&&<div style={{fontFamily:"Share Tech Mono",fontSize:10,color:C.red,padding:"6px 0"}}>⚠ {publishErr}</div>}
           <button className="btn" style={{padding:13,fontSize:11,letterSpacing:2,marginTop:4}}
-            disabled={!form.name||!form.price||!form.stock} onClick={publish}>
-            🚀 PUBLISH PRODUCT
+            disabled={!form.name||!form.price||!form.stock||stage==="saving"} onClick={publish}>
+            {stage==="saving"?"⏳ SAVING...":"🚀 PUBLISH PRODUCT"}
           </button>
         </div>
       </div>
