@@ -1,9 +1,15 @@
 const { uploadBuffer } = require('../utils/cloudinary');
+
 exports.uploadImage = async (req, res) => {
   try {
+    if (!req.file) return res.status(400).json({ error: 'No file provided' });
+    console.log(`[upload] file=${req.file.originalname} size=${req.file.size} mime=${req.file.mimetype}`);
+    console.log(`[upload] Cloudinary config: cloud_name=${process.env.CLOUDINARY_CLOUD_NAME} api_key=${process.env.CLOUDINARY_API_KEY ? '***set***' : 'MISSING'} api_secret=${process.env.CLOUDINARY_API_SECRET ? '***set***' : 'MISSING'}`);
     const result = await uploadBuffer(req.file.buffer, req.file.mimetype);
+    console.log(`[upload] success url=${result.url}`);
     res.json({ url: result.url, publicId: result.publicId });
   } catch (err) {
+    console.error(`[upload] Cloudinary error: ${err.message}`, err.http_code ? `HTTP ${err.http_code}` : '');
     res.status(500).json({ error: err.message });
   }
 };

@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect, useRef } from "react";
 import useAuthStore from '../../store/useAuthStore';
-import { authAPI, productsAPI, ordersAPI } from '../../lib/api';
+import { authAPI, productsAPI, ordersAPI, uploadAPI } from '../../lib/api';
 
 const C = {
   bg:"#0a0a0f", bg2:"#0e0e16", card:"#13131e", card2:"#1a1a28",
@@ -772,8 +772,9 @@ function AdminLogin({onLogin}){
 // ─── Product Uploader ──────────────────────────────────────────────────────────
 function Uploader({products,setProducts,onRefresh}){
   const [imgData,setImgData]=useState(null);
-  const [imgFile,setImgFile]=useState(null);
-  const [extraImgs,setExtraImgs]=useState([{data:null,file:null},{data:null,file:null}]);
+  const [imgUrl,setImgUrl]=useState(null);
+  const [uploadingImg,setUploadingImg]=useState(false);
+  const [extraImgs,setExtraImgs]=useState([{data:null,url:null,uploading:false},{data:null,url:null,uploading:false}]);
   const [publishErr,setPublishErr]=useState("");
   const [form,setForm]=useState({name:"",cat:1,price:"",disc:0,stock:"",desc:"",seller:"Casitech Store",hot:false,isNew:true});
   const [stage,setStage]=useState("idle"); // idle|preview|analyzing|ready|saving|done
@@ -785,13 +786,19 @@ function Uploader({products,setProducts,onRefresh}){
   const camRef=useRef();
   const dropRef=useRef();
 
-  // ── Load from File object ──
-  const loadFile=file=>{
+  // ── Load from File object — shows local preview immediately, uploads to Cloudinary in background ──
+  const loadFile=async file=>{
     if(!file||!file.type.startsWith("image/"))return;
-    setImgFile(file);
+    setImgUrl(null);setUploadingImg(true);setUrlErr("");
     const r=new FileReader();
-    r.onload=e=>{setImgData(e.target.result);setStage("preview");setUrlErr("");};
+    r.onload=e=>{setImgData(e.target.result);setStage("preview");};
     r.readAsDataURL(file);
+    try{
+      const {data}=await uploadAPI.image(file);
+      setImgUrl(data.url);
+    }catch(e){
+      setUrlErr(e.response?.data?.error||"Upload to Cloudinary failed — check CLOUDINARY_* env vars in Railway");
+    }finally{setUploadingImg(false);}
   };
 
   // ── Load from URL ──
@@ -806,8 +813,8 @@ function Uploader({products,setProducts,onRefresh}){
       if(!blob.type.startsWith("image/"))throw new Error("not an image");
       loadFile(new File([blob],"product.jpg",{type:blob.type}));
     }catch{
-      // CORS often blocks direct fetch — fall back to just using URL as src
-      setImgData(url);setStage("preview");setUrlErr("");
+      // CORS blocks fetch — use URL directly as both preview and Cloudinary src
+      setImgData(url);setImgUrl(url);setStage("preview");setUrlErr("");setUploadingImg(false);
     }
   };
 
@@ -874,20 +881,16 @@ function Uploader({products,setProducts,onRefresh}){
 
   const publish=async()=>{
     if(!form.name||!form.price||!form.stock)return;
+    if(uploadingImg)return;
     setStage("saving");
     setPublishErr("");
     try{
-      const fd=new FormData();
-      fd.append('name',form.name);fd.append('description',form.desc);
-      fd.append('price',form.price);fd.append('discount',form.disc||0);
-      fd.append('category_id',form.cat);fd.append('stock',form.stock);
-      fd.append('is_hot',form.hot);fd.append('is_new',form.isNew);
-      if(imgFile)fd.append('images',imgFile);
-      // URL fallback: CORS blocked fetch so imgFile is null but imgData holds an http URL
-      else if(imgData&&!imgData.startsWith('data:'))fd.append('imageUrl',imgData);
-      extraImgs.forEach(e=>{if(e.file)fd.append('images',e.file);});
-      const {data}=await productsAPI.create(fd);
-      if(data.warning)setPublishErr('⚠ '+data.warning);
+      const imageUrls=[imgUrl,...extraImgs.map(e=>e.url)].filter(Boolean);
+      await productsAPI.create({
+        name:form.name,description:form.desc,price:form.price,
+        discount:form.disc||0,category_id:form.cat,stock:form.stock,
+        is_hot:form.hot,is_new:form.isNew,imageUrls,
+      });
       if(onRefresh)await onRefresh();
       setStage("done");
     }catch(e){
@@ -896,7 +899,7 @@ function Uploader({products,setProducts,onRefresh}){
     }
   };
 
-  const reset=()=>{setImgData(null);setImgFile(null);setExtraImgs([{data:null,file:null},{data:null,file:null}]);setPublishErr("");setStage("idle");setUrlInput("");setUrlErr("");setForm({name:"",cat:1,price:"",disc:0,stock:"",desc:"",seller:"Casitech Store",hot:false,isNew:true});};
+  const reset=()=>{setImgData(null);setImgUrl(null);setUploadingImg(false);setExtraImgs([{data:null,url:null,uploading:false},{data:null,url:null,uploading:false}]);setPublishErr("");setStage("idle");setUrlInput("");setUrlErr("");setForm({name:"",cat:1,price:"",disc:0,stock:"",desc:"",seller:"Casitech Store",hot:false,isNew:true});};
   const sf=k=>e=>setForm(f=>({...f,[k]:e.target.type==="checkbox"?e.target.checked:e.target.value}));
 
   if(stage==="done") return(
@@ -936,6 +939,16 @@ function Uploader({products,setProducts,onRefresh}){
                 <div style={{width:180,height:3,background:C.border,borderRadius:2,overflow:"hidden"}}>
                   <div style={{height:"100%",background:C.green,animation:"analyzePulse 1.2s ease-in-out infinite"}}/>
                 </div>
+              </div>
+            )}
+            {uploadingImg&&(
+              <div style={{position:"absolute",bottom:0,left:0,right:0,background:"#000000cc",padding:"5px 8px",fontFamily:"Share Tech Mono",fontSize:9,color:C.green,textAlign:"center",letterSpacing:1}}>
+                ⬆ UPLOADING TO CLOUDINARY...
+              </div>
+            )}
+            {!uploadingImg&&imgUrl&&(
+              <div style={{position:"absolute",bottom:0,left:0,right:0,background:"#00000099",padding:"5px 8px",fontFamily:"Share Tech Mono",fontSize:9,color:C.green,textAlign:"center",letterSpacing:1}}>
+                ✓ UPLOADED
               </div>
             )}
             <button onClick={reset} style={{position:"absolute",top:8,right:8,background:"#000000bb",border:`1px solid ${C.border}`,borderRadius:4,color:C.muted,cursor:"pointer",width:26,height:26,fontSize:12}}>✕</button>
@@ -1010,17 +1023,24 @@ function Uploader({products,setProducts,onRefresh}){
                   {ex.data?(
                     <div style={{position:"relative",borderRadius:6,overflow:"hidden",height:76,border:`1px solid ${C.border}`}}>
                       <img src={ex.data} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-                      <button onClick={()=>setExtraImgs(s=>s.map((x,j)=>j===i?{data:null,file:null}:x))}
+                      <button onClick={()=>setExtraImgs(s=>s.map((x,j)=>j===i?{data:null,url:null,uploading:false}:x))}
                         style={{position:"absolute",top:3,right:3,background:"#000000cc",border:"none",borderRadius:3,color:"#fff",cursor:"pointer",width:18,height:18,fontSize:10,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
                     </div>
                   ):(
                     <label style={{display:"block",cursor:"pointer"}}>
-                      <input type="file" accept="image/*" style={{display:"none"}} onChange={e=>{
+                      <input type="file" accept="image/*" style={{display:"none"}} onChange={async e=>{
                         const file=e.target.files[0];
                         if(!file||!file.type.startsWith("image/"))return;
                         const r=new FileReader();
-                        r.onload=ev=>setExtraImgs(s=>s.map((x,j)=>j===i?{data:ev.target.result,file}:x));
+                        r.onload=ev=>setExtraImgs(s=>s.map((x,j)=>j===i?{...x,data:ev.target.result,url:null,uploading:true}:x));
                         r.readAsDataURL(file);
+                        try{
+                          const {data}=await uploadAPI.image(file);
+                          setExtraImgs(s=>s.map((x,j)=>j===i?{...x,url:data.url,uploading:false}:x));
+                        }catch(err){
+                          setExtraImgs(s=>s.map((x,j)=>j===i?{...x,uploading:false}:x));
+                          setPublishErr('Extra image upload failed: '+(err.response?.data?.error||err.message));
+                        }
                       }}/>
                       <div style={{border:`2px dashed ${C.border}`,borderRadius:6,height:76,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:4,background:C.card}}>
                         <div style={{fontSize:18}}>📷</div>
