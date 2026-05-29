@@ -883,8 +883,11 @@ function Uploader({products,setProducts,onRefresh}){
       fd.append('category_id',form.cat);fd.append('stock',form.stock);
       fd.append('is_hot',form.hot);fd.append('is_new',form.isNew);
       if(imgFile)fd.append('images',imgFile);
+      // URL fallback: CORS blocked fetch so imgFile is null but imgData holds an http URL
+      else if(imgData&&!imgData.startsWith('data:'))fd.append('imageUrl',imgData);
       extraImgs.forEach(e=>{if(e.file)fd.append('images',e.file);});
-      await productsAPI.create(fd);
+      const {data}=await productsAPI.create(fd);
+      if(data.warning)setPublishErr('⚠ '+data.warning);
       if(onRefresh)await onRefresh();
       setStage("done");
     }catch(e){

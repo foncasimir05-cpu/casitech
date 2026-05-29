@@ -39,22 +39,38 @@ exports.getOne = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    const { name, description, price, discount, category_id, stock, tags, is_hot, is_new } = req.body;
+    const { name, description, price, discount, category_id, stock, tags, is_hot, is_new, imageUrl } = req.body;
     let images = [];
+    let uploadWarning = null;
+
     if (req.files?.length) {
       const results = await Promise.allSettled(
         req.files.map(f => uploadBuffer(f.buffer, f.mimetype).then(r => r.url))
       );
       images = results.filter(r => r.status === 'fulfilled').map(r => r.value);
       const failed = results.filter(r => r.status === 'rejected');
-      if (failed.length) console.error('Cloudinary upload errors:', failed.map(r => r.reason?.message));
+      if (failed.length) {
+        const reasons = failed.map(r => r.reason?.message || 'unknown').join('; ');
+        console.error('Cloudinary upload errors:', reasons);
+        if (images.length === 0) {
+          uploadWarning = `Image upload failed: ${reasons}. Check CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET in Railway.`;
+        }
+      }
     }
+
+    // Fallback: use URL string directly when admin loaded image via URL (CORS blocked file fetch)
+    if (images.length === 0 && imageUrl && imageUrl.startsWith('http')) {
+      images = [imageUrl];
+    }
+
     const { rows } = await query(
       `INSERT INTO products(seller_id,name,description,price,discount,category_id,images,stock,tags,is_hot,is_new)
        VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
       [req.user.id, name, description, price, discount||0, category_id, images, stock, tags||[], is_hot||false, is_new||false]
     );
-    res.status(201).json({ product: rows[0] });
+    const response = { product: rows[0] };
+    if (uploadWarning) response.warning = uploadWarning;
+    res.status(201).json(response);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
