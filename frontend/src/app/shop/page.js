@@ -332,7 +332,7 @@ function ProductModal({p,onClose,onCart,wish,onWish}){
     <div className="overlay" onClick={onClose}>
       <div className="modal fade-in" onClick={e=>e.stopPropagation()}>
         {/* Image carousel */}
-        <div style={{position:"relative",width:"100%",height:210,background:C.card2,borderRadius:8,overflow:"hidden",marginBottom:16,flexShrink:0}}>
+        <div style={{position:"relative",width:"100%",height:360,maxHeight:400,background:C.card2,borderRadius:8,overflow:"hidden",marginBottom:16,flexShrink:0}}>
           {imgs[imgIdx]
             ?<img src={imgs[imgIdx]} alt="" style={{width:"100%",height:"100%",objectFit:"contain",display:"block",background:C.card2,padding:8}}/>
             :<div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100%",fontSize:64}}>{p.icon}</div>
