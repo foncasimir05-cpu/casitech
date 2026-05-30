@@ -175,13 +175,15 @@ function PCard({p,onCart,onView,wish,onWish}){
     <div className="card-hover" onClick={()=>onView(p)}
       style={{background:C.card,borderRadius:6,overflow:"hidden",border:`1px solid ${C.border}`,minWidth:192,flex:"0 0 auto",cursor:"pointer"}}>
       <div style={{background:C.card2,height:136,display:"flex",alignItems:"center",justifyContent:"center",fontSize:56,position:"relative",borderBottom:`1px solid ${C.border}`}}>
-        {p.imgSrc?<img src={p.imgSrc} alt="" style={{width:"100%",height:"100%",objectFit:"contain",position:"absolute",inset:0,background:C.card2,padding:4}}/>:null}
-        <span style={{position:"relative"}}>{p.icon}</span>
-        {p.hot&&<span className="hot" style={{position:"absolute",top:7,left:7}}>▲ HOT</span>}
-        {p.isNew&&!p.hot&&<span className="tag" style={{position:"absolute",top:7,left:7}}>// NEW</span>}
-        {p.disc>0&&<span className="sale" style={{position:"absolute",top:7,right:7}}>-{p.disc}%</span>}
+        {p.imgSrc
+          ?<img src={p.imgSrc} alt="" style={{width:"100%",height:"100%",objectFit:"contain",position:"absolute",inset:0,background:C.card2,padding:4}}/>
+          :<span>{p.icon}</span>
+        }
+        {p.hot&&<span className="hot" style={{position:"absolute",top:7,left:7,zIndex:1}}>▲ HOT</span>}
+        {p.isNew&&!p.hot&&<span className="tag" style={{position:"absolute",top:7,left:7,zIndex:1}}>// NEW</span>}
+        {p.disc>0&&<span className="sale" style={{position:"absolute",top:7,right:7,zIndex:1}}>-{p.disc}%</span>}
         <button onClick={e=>{e.stopPropagation();onWish(p.id);}}
-          style={{position:"absolute",bottom:7,right:7,background:wished?`${C.green}33`:C.card,border:`1px solid ${wished?C.green:C.border}`,borderRadius:4,width:26,height:26,cursor:"pointer",fontSize:12,color:wished?C.green:C.muted,display:"flex",alignItems:"center",justifyContent:"center"}}>
+          style={{position:"absolute",bottom:7,right:7,zIndex:1,background:wished?`${C.green}33`:C.card,border:`1px solid ${wished?C.green:C.border}`,borderRadius:4,width:26,height:26,cursor:"pointer",fontSize:12,color:wished?C.green:C.muted,display:"flex",alignItems:"center",justifyContent:"center"}}>
           {wished?"❤":"♡"}
         </button>
       </div>
