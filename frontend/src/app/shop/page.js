@@ -175,7 +175,7 @@ function PCard({p,onCart,onView,wish,onWish}){
     <div className="card-hover" onClick={()=>onView(p)}
       style={{background:C.card,borderRadius:6,overflow:"hidden",border:`1px solid ${C.border}`,minWidth:192,flex:"0 0 auto",cursor:"pointer"}}>
       <div style={{background:C.card2,height:136,display:"flex",alignItems:"center",justifyContent:"center",fontSize:56,position:"relative",borderBottom:`1px solid ${C.border}`}}>
-        {p.imgSrc?<img src={p.imgSrc} alt="" style={{width:"100%",height:"100%",objectFit:"cover",position:"absolute",inset:0}}/>:null}
+        {p.imgSrc?<img src={p.imgSrc} alt="" style={{width:"100%",height:"100%",objectFit:"contain",position:"absolute",inset:0,background:C.card2,padding:4}}/>:null}
         <span style={{position:"relative"}}>{p.icon}</span>
         {p.hot&&<span className="hot" style={{position:"absolute",top:7,left:7}}>▲ HOT</span>}
         {p.isNew&&!p.hot&&<span className="tag" style={{position:"absolute",top:7,left:7}}>// NEW</span>}
@@ -334,7 +334,7 @@ function ProductModal({p,onClose,onCart,wish,onWish}){
         {/* Image carousel */}
         <div style={{position:"relative",width:"100%",height:210,background:C.card2,borderRadius:8,overflow:"hidden",marginBottom:16,flexShrink:0}}>
           {imgs[imgIdx]
-            ?<img src={imgs[imgIdx]} alt="" style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>
+            ?<img src={imgs[imgIdx]} alt="" style={{width:"100%",height:"100%",objectFit:"contain",display:"block",background:C.card2,padding:8}}/>
             :<div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100%",fontSize:64}}>{p.icon}</div>
           }
           {imgs.length>1&&<>
@@ -930,8 +930,8 @@ function Uploader({products,setProducts,onRefresh}){
 
         {/* Image preview */}
         {imgData?(
-          <div style={{position:"relative",borderRadius:8,overflow:"hidden",border:`1px solid ${C.border}`}}>
-            <img src={imgData} alt="product" style={{width:"100%",height:240,objectFit:"cover",display:"block"}}
+          <div style={{position:"relative",borderRadius:8,overflow:"hidden",border:`1px solid ${C.border}`,background:C.card2}}>
+            <img src={imgData} alt="product" style={{width:"100%",height:240,objectFit:"contain",display:"block",padding:8}}
               onError={()=>{setUrlErr("Could not load image from that URL.");setImgData(null);setStage("idle");}}/>
             {stage==="analyzing"&&(
               <div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"#000000cc",gap:12}}>
@@ -1021,8 +1021,8 @@ function Uploader({products,setProducts,onRefresh}){
               {extraImgs.map((ex,i)=>(
                 <div key={i}>
                   {ex.data?(
-                    <div style={{position:"relative",borderRadius:6,overflow:"hidden",height:76,border:`1px solid ${C.border}`}}>
-                      <img src={ex.data} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                    <div style={{position:"relative",borderRadius:6,overflow:"hidden",height:76,border:`1px solid ${C.border}`,background:C.card2}}>
+                      <img src={ex.data} alt="" style={{width:"100%",height:"100%",objectFit:"contain",padding:4}}/>
                       <button onClick={()=>setExtraImgs(s=>s.map((x,j)=>j===i?{data:null,url:null,uploading:false}:x))}
                         style={{position:"absolute",top:3,right:3,background:"#000000cc",border:"none",borderRadius:3,color:"#fff",cursor:"pointer",width:18,height:18,fontSize:10,display:"flex",alignItems:"center",justifyContent:"center"}}>✕</button>
                     </div>
